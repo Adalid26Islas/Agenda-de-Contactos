@@ -1,6 +1,8 @@
 package entities;
 
-public class Contact {
+import java.io.Serializable;
+
+public class Contact implements Serializable{
     //Atributes
     private String id;
     private String name;

@@ -37,6 +37,11 @@ public class HomeScreen extends javax.swing.JFrame {
         model.addColumn("Email");
         //Asignación del modelo a la tabla
         tbContacts.setModel(model);
+        
+        if (contactDAO.fileExists("contacts.db")) {
+            contactDAO.readContacts("contacts.db");
+            updateTable(false);
+        }
     }
 
     /**
@@ -71,8 +76,15 @@ public class HomeScreen extends javax.swing.JFrame {
         btnDelete = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbContacts = new javax.swing.JTable();
+        btnSearchName = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabel1.setText("ID");
 
@@ -163,10 +175,20 @@ public class HomeScreen extends javax.swing.JFrame {
         btnUpdate.setForeground(new java.awt.Color(255, 255, 255));
         btnUpdate.setText("Actualizar");
         btnUpdate.setBorderPainted(false);
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnDelete.setBackground(new java.awt.Color(255, 51, 0));
         btnDelete.setForeground(new java.awt.Color(255, 255, 255));
         btnDelete.setText("Eliminar");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         tbContacts.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED, null, java.awt.Color.black, null, new java.awt.Color(0, 0, 0)));
         tbContacts.setModel(new javax.swing.table.DefaultTableModel(
@@ -181,6 +203,14 @@ public class HomeScreen extends javax.swing.JFrame {
             }
         ));
         jScrollPane1.setViewportView(tbContacts);
+
+        btnSearchName.setBackground(new java.awt.Color(51, 255, 204));
+        btnSearchName.setText("Buscar Por Nombre");
+        btnSearchName.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchNameActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -210,30 +240,33 @@ public class HomeScreen extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(txtBirthDate, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel5)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel7)
-                                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtTelephoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel4))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addComponent(txtGender, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel8)
-                                    .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnSave)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnSearch)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnUpdate)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnDelete)))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addComponent(btnSave)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(btnSearch)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(btnUpdate)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(btnDelete)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnSearchName))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel7)
+                                        .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtTelephoneNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel4))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel6)
+                                        .addComponent(txtGender, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel8)
+                                        .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -281,7 +314,8 @@ public class HomeScreen extends javax.swing.JFrame {
                     .addComponent(btnSave)
                     .addComponent(btnSearch)
                     .addComponent(btnUpdate)
-                    .addComponent(btnDelete))
+                    .addComponent(btnDelete)
+                    .addComponent(btnSearchName))
                 .addGap(30, 30, 30)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(18, Short.MAX_VALUE))
@@ -322,22 +356,27 @@ public class HomeScreen extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtEmailActionPerformed
 
-    public void updateTable(){
-        ArrayList<Contact>contactsList=contactDAO.getContacts();
-        model.setRowCount(0);
-        for(Contact c:contactsList){
-            String[] rowData={
-                c.getId(),
-                c.getName(),
-                c.getLastname(),
-                String.valueOf(c.getAge()),
-                c.getTelephoneNumber(),
-                c.getBirthDate(),
-                c.getGender(),
-                c.getEmail()
-            };
-            model.addRow(rowData);
-        }
+    public void updateTable(boolean byName){
+            //Validacion para que muestre los datos por nombre o mostrar todos de acuerdo a la oopcion
+            ArrayList<Contact>contactsList;
+            if (byName)
+                contactsList=contactDAO.getContactsByName(txtName.getText());
+            else
+                contactsList=contactDAO.getContacts();
+            model.setRowCount(0);
+            for(Contact c:contactsList){
+                String[] rowData={
+                    c.getId(),
+                    c.getName(),
+                    c.getLastname(),
+                    String.valueOf(c.getAge()),
+                    c.getTelephoneNumber(),
+                    c.getBirthDate(),
+                    c.getGender(),
+                    c.getEmail()
+                };
+                model.addRow(rowData);
+            }
     }
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
@@ -359,7 +398,7 @@ public class HomeScreen extends javax.swing.JFrame {
             if (contactDAO.saveContact(contact)){
                JOptionPane.showMessageDialog(this, "Contacto guardado correctamente");
                clearFields();
-               updateTable();
+               updateTable(false);
             }
             else {
                 JOptionPane.showMessageDialog(this, "Servicio no disponible...");
@@ -389,6 +428,54 @@ public class HomeScreen extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void btnSearchNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchNameActionPerformed
+        // TODO add your handling code here:
+        if(txtName.getText().equals(""))
+            JOptionPane.showMessageDialog(this, "Por favor, ingresa el Nombre dek contacto que deseas buscar");
+        else 
+        updateTable(true);
+    }//GEN-LAST:event_btnSearchNameActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        if(txtId.getText().equals(""))
+            JOptionPane.showMessageDialog(this, "Teclea el Id del contacto");
+        else {
+            contact.setName(txtName.getText());
+            contact.setLastname(txtLastname.getText());
+            contact.setAge(Byte.parseByte(txtAge.getText()));
+            contact.setTelephoneNumber(txtTelephoneNumber.getText());
+            contact.setBirthDate(txtBirthDate.getText());
+            contact.setGender(txtGender.getText());
+            contact.setEmail(txtEmail.getText());
+            
+            JOptionPane.showMessageDialog(this, "Se Actualizo el contacto");
+            updateTable(false);
+        }
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+        if(txtId.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Teclea el Id del contacto");
+        }else{ 
+            if (JOptionPane.showConfirmDialog(this, "¿Desea eliminar el contacto?","Adenga 9b", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)==0)
+                if (contactDAO.deleteContact(txtId.getText())) {
+                    JOptionPane.showMessageDialog(this, "Contato Eliminado");
+                    clearFields();
+                    updateTable(false);
+                }
+        }
+        
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        if (!contactDAO.fileExists("contacts.db"))
+            contactDAO.createFile("contacts.db");
+        contactDAO.saveChanges("contacts.db");
+    }//GEN-LAST:event_formWindowClosing
 
     public void clearFields(){
         txtId.setText("");
@@ -440,6 +527,7 @@ public class HomeScreen extends javax.swing.JFrame {
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnSearchName;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
